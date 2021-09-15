@@ -6,47 +6,48 @@ using System.Threading.Tasks;
 
 namespace tarsalgo
 {
-    class Event
+    class Event : Time
     {
-        private int entityId { get; set; } = 0;
-        private Direction direction = Direction.In;
+        public int EntityId { get; set; } = 0;
+        public Direction Direction { get; set; }  = Direction.In;
+        static readonly string[] DirectionToString = new string[] { "be", "ki" };
 
-        public Event(string payload)
+
+        public Event()
         {
-            parsePayload(payload);
+
         }
 
-        string getDirectionAsString()
+        public Event(string payload) : base()
         {
-            return directionToString[getDirection()];
+            ParsePayload(payload);
         }
 
-        void setDirectionFromString(string directionString)
+        public string GetDirectionAsString()
         {
-            if (directionString == directionToString[In])
+            return DirectionToString[(int)Direction];
+        }
+
+        void SetDirectionFromString(string directionString)
+        {
+            if (directionString == DirectionToString[(int)Direction.In])
             {
-                setDirection(Direction.In);
+                Direction = Direction.In;
             }
-            else if (directionString == directionToString[Out])
+            else if (directionString == DirectionToString[(int)Direction.Out])
             {
-                setDirection(Direction.Out);
+                Direction = Direction.Out;
             }
         }
 
-        void parsePayload(string payload)
+        void ParsePayload(string payload)
         {
             char splitDelimiter = ' ';
-            List<string> values = new List<string>();
-            string[] items = payload.Split(' ');
+            List<string> values = payload.Split(splitDelimiter).ToList();
 
-            foreach(string item in items)
-            {
-                values.Add(item);
-            }
-
-            setTime(stoi(values[0]), stoi(values[1]));
-            setEntityId(stoi(values[2]));
-            setDirectionFromString(values[3]);
+            setTimeByHourAndMinute(Int32.Parse(values[0]), Int32.Parse(values[1]));
+            EntityId = Int32.Parse(values[2]);
+            SetDirectionFromString(values[3]);
         }
     }
 }
