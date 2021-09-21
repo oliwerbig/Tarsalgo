@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace tarsalgo
 {
@@ -31,11 +32,12 @@ namespace tarsalgo
             Console.WriteLine("");
             Console.WriteLine("4. feladat");
             Console.WriteLine("A végén a társalgóban voltak: ");
-            Dictionary<int, Entity> entitiesStillIn = FindEntitiesStillIn();
-            foreach(KeyValuePair<int, Entity> entity in entitiesStillIn)
+            foreach(KeyValuePair<int, Entity> entity in FindEntitiesStillIn().OrderBy(key => key.Key))
             {
-                Console.WriteLine(entity.Value.Id);
+                Console.Write(entity.Value.Id);
+                Console.Write(" ");
             }
+            Console.WriteLine("");
 
             // 5.
             Console.WriteLine("");
@@ -67,7 +69,7 @@ namespace tarsalgo
             Console.WriteLine("");
             Console.WriteLine("8. feladat");
             TimeSpan totalTimeInOfEntity = Entities[input].CalculateTotalTimeIn();
-            if (!entitiesStillIn.ContainsKey(input))
+            if (!FindEntitiesStillIn().ContainsKey(input))
             {
                 Console.WriteLine("A(z) " + input + "-es személy összesen " + totalTimeInOfEntity.TimeInMinutes + " percet volt bent, a megfigyelés végén nem volt a társalgóban.");
             }
@@ -101,13 +103,16 @@ namespace tarsalgo
                 Entities[@event.EntityId].Events.Add(@event);
                 TimeStamps[@event.TimeInMinutes].Events.Add(@event);
              
-                if (@event.Direction == Direction.In)
+                foreach(Event e in Events)
                 {
-                    TimeStamps[@event.TimeInMinutes].EntitiesInside.Add(@event.EntityId, Entities[@event.EntityId]);
-                }
-                else if (@event.Direction == Direction.Out)
-                {
-                    TimeStamps[@event.TimeInMinutes].EntitiesInside.Remove(@event.EntityId);
+                    if (e.Direction == Direction.In && !TimeStamps[@event.TimeInMinutes].EntitiesInside.ContainsKey(e.EntityId))
+                    {
+                        TimeStamps[@event.TimeInMinutes].EntitiesInside.Add(e.EntityId, Entities[e.EntityId]);
+                    }
+                    else if (e.Direction == Direction.Out)
+                    {
+                        TimeStamps[@event.TimeInMinutes].EntitiesInside.Remove(e.EntityId);
+                    }
                 }
             
             }
@@ -154,18 +159,7 @@ namespace tarsalgo
 
         public static Dictionary<int, Entity> FindEntitiesStillIn()
         {
-            Dictionary<int, Entity> entitiesStillIn = new();
-            TimeStamp lastTimeStamp = new();
-
-            foreach(KeyValuePair<int, TimeStamp> timeStamp in TimeStamps)
-            {
-                if (timeStamp.Value.TimeInMinutes > lastTimeStamp.TimeInMinutes)
-                {
-                    entitiesStillIn = timeStamp.Value.EntitiesInside;
-                }
-            }
-
-            return entitiesStillIn;
+            return TimeStamps[TimeStamps.Keys.Max()].EntitiesInside;
         }
 
         public static TimeStamp FindTimeStampWithMostEntitiesIn()

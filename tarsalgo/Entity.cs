@@ -29,16 +29,13 @@ namespace tarsalgo
             List<Event> @out = new();
             foreach (Event e in Events) 
             {
-                if (e.EntityId == Id)
+                if (e.Direction == Direction.In)
                 {
-                    if (e.Direction == Direction.In)
-                    {
-                        @in.Add(e);
-                    }
-                    else if (e.Direction == Direction.Out)
-                    {
-                        @out.Add(e);
-                    }
+                    @in.Add(e);
+                }
+                else if (e.Direction == Direction.Out)
+                {
+                    @out.Add(e);
                 }
             }
 
@@ -48,11 +45,11 @@ namespace tarsalgo
 
             TimeStamp a = new();
             TimeStamp b = new();
-            for (int i = 0; i< @in.Count; i++)
+            for (int i = 0; i < @in.Count; i++)
             {
                 a.TimeInMinutes = @in[i].TimeInMinutes;
                 b.TimeInMinutes = @out[i].TimeInMinutes;
-                totalTimeIn.TimeInMinutes += a.calculateTimeElapsed(b).TimeInMinutes;
+                totalTimeIn.TimeInMinutes += a.CalculateTimeElapsed(b).TimeInMinutes;
             }
 
             return totalTimeIn;

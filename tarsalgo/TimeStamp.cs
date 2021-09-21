@@ -25,9 +25,9 @@ namespace tarsalgo
         {
         }
 
-        public TimeSpan calculateTimeElapsed(TimeStamp otherTimeStamp)
+        public TimeSpan CalculateTimeElapsed(TimeStamp otherTimeStamp)
         {
-            TimeSpan timeElapsed = new TimeSpan(otherTimeStamp.TimeInMinutes - TimeInMinutes);
+            TimeSpan timeElapsed = new(otherTimeStamp.TimeInMinutes - TimeInMinutes);
             return timeElapsed;
         }
     }
