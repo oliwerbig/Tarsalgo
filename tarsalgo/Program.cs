@@ -10,7 +10,7 @@ namespace tarsalgo
 
         static List<Event> Events { get; set; } = new List<Event>();
         static Dictionary<int, Entity> Entities { get; set; } = new Dictionary<int, Entity>();
-        static Dictionary<int, TimeStamp> TimeStamps { get; set; } = new Dictionary<int, TimeStamp>();
+        static SortedDictionary<int, TimeStamp> TimeStamps { get; set; } = new SortedDictionary<int, TimeStamp>();
 
         static void Main(string[] args)
         {
@@ -20,8 +20,8 @@ namespace tarsalgo
             // 2.
             Console.WriteLine("");
             Console.WriteLine("2. feladat");
-            Console.WriteLine("Az első belépő: " + FindEntityFirstIn().Id);
-            Console.WriteLine("Az utolsó kilépő: " + FindEntityLastOut().Id);
+            Console.WriteLine("Az első belépő: {0}", FindEntityFirstIn().Id);
+            Console.WriteLine("Az utolsó kilépő: {0}", FindEntityLastOut().Id);
 
 
             // 3.
@@ -31,8 +31,8 @@ namespace tarsalgo
             // 4.
             Console.WriteLine("");
             Console.WriteLine("4. feladat");
-            Console.WriteLine("A végén a társalgóban voltak: ");
-            foreach(KeyValuePair<int, Entity> entity in FindEntitiesStillIn().OrderBy(key => key.Key))
+            Console.Write("A végén a társalgóban voltak: ");
+            foreach(KeyValuePair<int, Entity> entity in FindEntitiesStillIn().OrderBy(obj => obj.Key))
             {
                 Console.Write(entity.Value.Id);
                 Console.Write(" ");
@@ -90,14 +90,12 @@ namespace tarsalgo
 
                 if (!Entities.ContainsKey(@event.EntityId))
                 {
-                    Entity entity = new(@event.EntityId);
-                    Entities[@event.EntityId] = entity;
+                    Entities[@event.EntityId] = new Entity(@event.EntityId);
                 }
 
                 if (!TimeStamps.ContainsKey(@event.TimeInMinutes))
                 {
-                    TimeStamp timeStamp = new(@event.TimeInMinutes);
-                    TimeStamps[@event.TimeInMinutes] = timeStamp;
+                    TimeStamps[@event.TimeInMinutes] = new TimeStamp(@event.TimeInMinutes);
                 }
 
                 Entities[@event.EntityId].Events.Add(@event);
@@ -105,9 +103,9 @@ namespace tarsalgo
              
                 foreach(Event e in Events)
                 {
-                    if (e.Direction == Direction.In && !TimeStamps[@event.TimeInMinutes].EntitiesInside.ContainsKey(e.EntityId))
+                    if (e.Direction == Direction.In)
                     {
-                        TimeStamps[@event.TimeInMinutes].EntitiesInside.Add(e.EntityId, Entities[e.EntityId]);
+                        TimeStamps[@event.TimeInMinutes].EntitiesInside[e.EntityId] = Entities[e.EntityId];
                     }
                     else if (e.Direction == Direction.Out)
                     {
@@ -167,9 +165,9 @@ namespace tarsalgo
             TimeStamp timeStampWithMostEntitiesIn = new();
             foreach (KeyValuePair<int, TimeStamp> timeStamp in TimeStamps)
             {
-                if (timeStamp.Value.EntitiesInside.Count > timeStampWithMostEntitiesIn.EntitiesInside.Count)
+                if (timeStamp.Value.EntitiesInside.Count >= timeStampWithMostEntitiesIn.EntitiesInside.Count)
                 {
-                    timeStampWithMostEntitiesIn = TimeStamps[timeStamp.Value.TimeInMinutes];
+                    timeStampWithMostEntitiesIn = timeStamp.Value;
                 }
             }
 
